@@ -127,40 +127,7 @@ def create_feature_class(catalog_path, out_schema):
                                   field_is_nullable="NULLABLE")
 
 def geojson_to_geometry(geometry_struct):
-    coordinates = geometry_struct['coordinates']
-    if geometry_struct['type'] == "Point":
-        return "POINT ({})".format(" ".join(str(f) for f in coordinates))
-    elif geometry_struct['type'] == "MultiPoint":
-        return "MULTIPOINT ({})".format(
-            ", ".join(
-                " ".join(str(f) for f in point))
-            for point in coordinates)
-    elif geometry_struct['type'] == "LineString":
-        return "LINESTRING ({})".format(
-            ", ".join(
-                " ".join(str(f) for f in point))
-            for point in coordinates)
-    elif geometry_struct['type'] == "MultiLineString":
-        return "MULTILINESTRING ({})".format(
-            ", ".join("({})".format(
-                ",".join(" ".join(str(f) for f in pair) for pair in segment))
-            for segment in coordinates))
-    elif geometry_struct['type'] == "Polygon":
-        return "POLYGON ({})".format(
-            ", ".join("({})".format(
-                ",".join(" ".join(str(f) for f in pair) for pair in ring))
-            for ring in coordinates))
-    elif geometry_struct['type'] == "MultiPolygon":
-        return "MULTIPOLYGON({})".format(",".join("({})".format(
-                                            "({})".format(",".join(
-                                                ",".join(
-                                                    " ".join(str(f)
-                                                             for f in pair)
-                                                for pair in ring)
-                                            for ring in polygon)))
-                                         for polygon in coordinates))
-    else:
-        raise TypeError("Cannot handle geometry type {}".format(geometry_struct['type']))
+    return arcpy.AsShape(geometry_struct, False).WKT
 
 def write_features(out_feature_class, out_schema, json_struct):
     arcpy.AddMessage("Writing features")
